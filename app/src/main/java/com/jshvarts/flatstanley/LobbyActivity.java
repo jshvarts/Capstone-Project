@@ -5,14 +5,21 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,6 +32,9 @@ public class LobbyActivity extends AppCompatActivity {
     @BindView(R.id.flatStanleyImage)
     protected ImageView flatStanleyImageView;
 
+    @BindView(R.id.attractionImage)
+    protected ImageView attractionImageView;
+
     @BindView(R.id.postcardImage)
     protected ImageView postcardImageView;
 
@@ -32,7 +42,10 @@ public class LobbyActivity extends AppCompatActivity {
     protected FrameLayout targetLayout;
 
     @BindView(R.id.source_layout)
-    protected FrameLayout sourceLayout;
+    protected LinearLayout sourceLayout;
+
+    @BindView(R.id.attractionCaption)
+    protected EditText attractionCaption;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +94,7 @@ public class LobbyActivity extends AppCompatActivity {
                     case DragEvent.ACTION_DROP:
                         Log.d(TAG, "Action is DragEvent.ACTION_DROP");
 
-                        FrameLayout draggedImageParentViewLayout = (FrameLayout) flatStanleyImageView.getParent();
+                        ViewGroup draggedImageParentViewLayout = (ViewGroup) flatStanleyImageView.getParent();
                         Log.d(TAG, "draggedImageParentViewLayout: " + draggedImageParentViewLayout.getId());
                         Log.d(TAG, "targetLayout: " + targetLayout.getId());
 
@@ -105,6 +118,41 @@ public class LobbyActivity extends AppCompatActivity {
             }
         };
         targetLayout.setOnDragListener(dragListener);
+    }
+
+    @OnClick(R.id.addAttractionCaption)
+    protected void handleAddCaptionButtonClick() {
+        Log.d(TAG, "Begin handleAddCaptionButtonClick");
+        final String attractionTitle = attractionCaption.getText().toString().trim();
+        Log.d(TAG, "attraction caption: " + attractionTitle);
+
+        if (TextUtils.isEmpty(attractionTitle)) {
+            Log.d(TAG, "Caption is empty. Nothing to add.");
+            return;
+        }
+
+        Bitmap attractionBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.attraction);
+        Bitmap bitmapOverlay = Bitmap.createBitmap(attractionBitmap.getWidth(), attractionBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(bitmapOverlay);
+        canvas.drawBitmap(attractionBitmap, new Matrix(), null);
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(64);
+
+        Rect bounds = new Rect();
+        paint.getTextBounds(attractionTitle, 0, attractionTitle.length(), bounds);
+        int boundsWidth = bounds.width() + 50; // padded by fixed amount of 50
+
+        int x = bitmapOverlay.getWidth() - boundsWidth;
+        int y = bitmapOverlay.getHeight() - 50;
+
+        canvas.drawText(attractionTitle, x, y, paint);
+
+        attractionImageView.setImageBitmap(bitmapOverlay);
+        attractionImageView.invalidate();
+
+        Log.d(TAG, "End handleAddCaptionButtonClick");
     }
 
     @OnClick(R.id.resetButton)
