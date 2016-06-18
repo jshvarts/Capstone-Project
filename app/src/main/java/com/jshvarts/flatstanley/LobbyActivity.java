@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -46,6 +47,12 @@ public class LobbyActivity extends AppCompatActivity {
 
     @BindView(R.id.attractionCaption)
     protected EditText attractionCaption;
+
+    @BindView(R.id.addAttractionCaption)
+    protected Button addCaptionButton;
+
+    private float posX;
+    private float posY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,10 +106,10 @@ public class LobbyActivity extends AppCompatActivity {
                         Log.d(TAG, "targetLayout: " + targetLayout.getId());
 
                         View view = (View) event.getLocalState();
-                        float x = event.getX();
-                        float y = event.getY();
-                        view.setX(x-(view.getWidth()/2));
-                        view.setY(y-(view.getWidth()/2));
+                        posX = event.getX();
+                        posY = event.getY();
+                        view.setX(posX-(view.getWidth()/2));
+                        view.setY(posY-(view.getWidth()/2));
                         if (draggedImageParentViewLayout != targetLayout) {
                             draggedImageParentViewLayout.removeView(flatStanleyImageView);
                             targetLayout.addView(flatStanleyImageView);
@@ -176,8 +183,10 @@ public class LobbyActivity extends AppCompatActivity {
         Bitmap bitmapOverlay = Bitmap.createBitmap(attractionBitmap.getWidth(), attractionBitmap.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmapOverlay);
         canvas.drawBitmap(attractionBitmap, new Matrix(), null);
-        canvas.drawBitmap(flatStanleyBitmap, new Matrix(), null);
+        canvas.drawBitmap(flatStanleyBitmap, posX, posY, null);
 
+        attractionCaption.setVisibility(View.GONE);
+        addCaptionButton.setVisibility(View.GONE);
         postcardImageView.setImageBitmap(bitmapOverlay);
         postcardImageView.setVisibility(View.VISIBLE);
 
