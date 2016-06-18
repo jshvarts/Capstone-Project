@@ -11,17 +11,31 @@
     android:orientation="vertical"
     tools:context=".LobbyActivity">
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/source_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight=".5">
+        android:layout_weight=".5"
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/flatStanleyImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/reddit" />
+
+        <EditText
+            android:id="@+id/attractionCaption"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:maxLength="20"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/addAttractionCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="add caption" />
 
         <ImageView
             android:id="@+id/postcardImage"
@@ -30,7 +44,7 @@
             android:layout_marginBottom="50dp"
             android:visibility="gone" />
 
-    </FrameLayout>
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/target_layout"
