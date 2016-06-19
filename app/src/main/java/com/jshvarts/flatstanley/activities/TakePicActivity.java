@@ -21,6 +21,8 @@ import com.jshvarts.flatstanley.R;
 import com.jshvarts.flatstanley.util.CameraUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -137,7 +139,7 @@ public class TakePicActivity extends AppCompatActivity {
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "IMG_" + timeStamp;
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         Log.d(TAG, "ExternalFilesDir: " + storageDir.getAbsolutePath());
         File image = File.createTempFile(
@@ -152,6 +154,7 @@ public class TakePicActivity extends AppCompatActivity {
     }
 
     private void addPicToGallery() {
+        // TODO revisit as it does not work on Marshmallow
         Log.d(TAG, "sending broadcast to add image to gallery.");
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         File f = new File(currentPhotoPath);
@@ -159,37 +162,42 @@ public class TakePicActivity extends AppCompatActivity {
         mediaScanIntent.setAction(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
-
-        Log.d(TAG, "scheme: " + contentUri.getScheme().equals("file"));
-        Log.d(TAG, "action: " + Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE));
-        Log.d(TAG, "path: " + contentUri.getPath());
-        Log.d(TAG, "ExternalStorageDirectory: " + Environment.getExternalStorageDirectory().getPath());
     }
 
     private void displayPic() {
-        // Get the dimensions of the View
-        int targetW = 720;
-        int targetH = 480;
-
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        Log.d(TAG, "start file decode");
-        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-        Log.d(TAG, "end file decode");
+        Bitmap bitmap = decodeAndScalePic();
         picTakenImageView.setImageBitmap(bitmap);
         picTakenImageView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Decodes image and scales it to reduce memory consumption
+     */
+    private Bitmap decodeAndScalePic() {
+        // Decode image size
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(currentPhotoPath, o);
+
+        // The new size we want to scale to
+        final int TARGET_WIDTH = 1080;
+        final int TARGET_HEIGHT = 720;
+
+        if (o.outWidth <= TARGET_WIDTH || o.outHeight <= TARGET_HEIGHT) {
+            // Return image as is without any additional scaling
+            return BitmapFactory.decodeFile(currentPhotoPath, null);
+        }
+
+        // Find the correct scale value. It should be the power of 2.
+        int scale = 1;
+        while(o.outWidth / scale / 2 >= TARGET_WIDTH &&
+                o.outHeight / scale / 2 >= TARGET_HEIGHT) {
+            scale *= 2;
+        }
+
+        // Decode with inSampleSize
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        return BitmapFactory.decodeFile(currentPhotoPath, o2);
     }
 }
