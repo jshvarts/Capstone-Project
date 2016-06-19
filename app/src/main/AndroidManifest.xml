@@ -8,13 +8,19 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LobbyActivity">
+        <activity android:name=".activities.SpringboardActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activities.LobbyActivity" />
+        <activity android:name=".activities.TakePicActivity" />
+        <activity android:name=".activities.ChoosePicActivity" />
+        <activity android:name=".activities.MakeFlatStanleyActivity" />
+        <activity android:name=".activities.ShareFlatStanleyActivity" />
+        <activity android:name=".activities.BrowseFlatStanleysActivity" />
     </application>
 
 </manifest>

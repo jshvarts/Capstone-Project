@@ -1,4 +1,4 @@
-package com.jshvarts.flatstanley;
+package com.jshvarts.flatstanley.activities;
 
 import android.content.ClipData;
 import android.content.Intent;
@@ -22,13 +22,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.jshvarts.flatstanley.R;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class LobbyActivity extends AppCompatActivity {
+public class MakeFlatStanleyActivity extends AppCompatActivity {
 
-    private static final String TAG = "LobbyActivity";
+    private static final String TAG = "MakeFlatStanleyActivity";
 
     @BindView(R.id.flatStanleyImage)
     protected ImageView flatStanleyImageView;
@@ -57,7 +59,7 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_lobby);
+        setContentView(R.layout.make_flat_stanley);
 
         ButterKnife.bind(this);
 
