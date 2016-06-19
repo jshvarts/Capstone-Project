@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="springboardItems">
+        <item>Lobby</item>
+        <item>Take Pic</item>
+        <item>Choose Pic</item>
+        <item>Make Flat Stanley</item>
+        <item>Share Flat Stanley</item>
+        <item>Browse Flat Stanleys</item>
+    </string-array>
+
+    <string-array name="springboardActivityClassNameArray">
+        <item>com.jshvarts.flatstanley.activities.LobbyActivity</item>
+        <item>com.jshvarts.flatstanley.activities.TakePicActivity</item>
+        <item>com.jshvarts.flatstanley.activities.ChoosePicActivity</item>
+        <item>com.jshvarts.flatstanley.activities.MakeFlatStanleyActivity</item>
+        <item>com.jshvarts.flatstanley.activities.ShareFlatStanleyActivity</item>
+        <item>com.jshvarts.flatstanley.activities.BrowseFlatStanleysActivity</item>
+    </string-array>
+
+</resources>

@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:weightSum="1"
     android:orientation="vertical"
-    tools:context=".LobbyActivity">
+    tools:context=".activities.MakeFlatStanleyActivity">
 
     <LinearLayout
         android:id="@+id/source_layout"
