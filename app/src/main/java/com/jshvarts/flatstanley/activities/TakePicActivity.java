@@ -215,19 +215,6 @@ public class TakePicActivity extends AppCompatActivity {
             return null;
         }
 
-        // The new size we want to scale to
-        int targetWidth;
-        int targetHeight;
-        if (o.outHeight > o.outWidth) {
-            targetWidth = 720;
-            targetHeight = 1080;
-        } else if (o.outHeight == o.outWidth) {
-            targetWidth = targetHeight = 720;
-        } else {
-            targetWidth = 1080;
-            targetHeight = 720;
-        }
-
         // preserve the orientation (portrait vs landscape)
         ExifInterface exif = new ExifInterface(currentPhotoPath);
         int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
@@ -240,14 +227,30 @@ public class TakePicActivity extends AppCompatActivity {
             m.postRotate(270);
         }
 
-        Bitmap origBitmap = BitmapFactory.decodeFile(currentPhotoPath, null);
-        outBitmap = Bitmap.createBitmap(origBitmap, 0, 0, o.outWidth, o.outHeight, m, true);
+        // The new size we want to scale to ensure memory usage is optimal
+        int targetWidth;
+        int targetHeight;
+        if (o.outHeight > o.outWidth) {
+            targetWidth = getResources().getInteger(R.integer.pic_width_px);
+            targetHeight = getResources().getInteger(R.integer.pic_height_px);
+        } else if (o.outHeight == o.outWidth) {
+            targetWidth = targetHeight = getResources().getInteger(R.integer.pic_width_px);
+        } else {
+            targetWidth = getResources().getInteger(R.integer.pic_width_px);
+            targetHeight = getResources().getInteger(R.integer.pic_height_px);
+        }
 
-        if (o.outWidth <= targetWidth || o.outHeight <= targetHeight) {
+        Log.d(TAG, "targetWidth: " + targetWidth);
+        Log.d(TAG, "targetHeight: " + targetHeight);
+
+        if (o.outWidth <= targetWidth && o.outHeight <= targetHeight) {
             // Return image as is without any additional scaling
+            Bitmap origBitmap = BitmapFactory.decodeFile(currentPhotoPath, null);
+            outBitmap = Bitmap.createBitmap(origBitmap, 0, 0, o.outWidth, o.outHeight, m, true);
+            origBitmap.recycle();
+
             return outBitmap;
         }
-        outBitmap.recycle();
 
         // Find the correct scale value. It should be the power of 2.
         int scale = 1;
@@ -257,10 +260,10 @@ public class TakePicActivity extends AppCompatActivity {
         }
 
         // Decode with inSampleSize
-        BitmapFactory.Options o2 = new BitmapFactory.Options();
-        o2.inSampleSize = scale;
+        BitmapFactory.Options scaleOptions = new BitmapFactory.Options();
+        scaleOptions.inSampleSize = scale;
 
-        Bitmap scaledBitmap = BitmapFactory.decodeFile(currentPhotoPath, o2);
+        Bitmap scaledBitmap = BitmapFactory.decodeFile(currentPhotoPath, scaleOptions);
         return Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), m, true);
     }
 }
