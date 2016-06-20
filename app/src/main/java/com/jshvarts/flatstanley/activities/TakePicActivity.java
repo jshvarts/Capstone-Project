@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,29 +17,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.jshvarts.flatstanley.R;
 import com.jshvarts.flatstanley.util.CameraUtil;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class TakePicActivity extends AppCompatActivity {
     private static final String TAG = "TakePicActivity";
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PERMISSIONS_REQUEST_CAMERA = 2;
     private static final String FILE_PROVIDER_AUTHORITY = "com.jshvarts.flatstanley.fileprovider";
-
-    @BindView(R.id.take_pic_text)
-    protected TextView takePicText;
 
     @BindView(R.id.pic_taken)
     protected ImageView picTakenImageView;
@@ -58,7 +55,6 @@ public class TakePicActivity extends AppCompatActivity {
 
         if (!CameraUtil.checkCameraAvailability(this)) {
             Log.d(TAG, "Device has no camera");
-            takePicText.setText("Device has no camera");
             return;
         }
 
@@ -129,11 +125,32 @@ public class TakePicActivity extends AppCompatActivity {
                 } else {
                     // permission denied, boo!
                     Log.e(TAG, "Permission to use camera denied!");
-                    takePicText.setText("Permission to use camera denied!");
                 }
                 return;
             }
         }
+    }
+
+    @OnClick(R.id.retakePicButton)
+    protected void handleRetakePicButtonClick() {
+        Log.d(TAG, "Begin handleRetakePicButtonClick");
+
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
+
+        Log.d(TAG, "End handleRetakePicButtonClick");
+    }
+
+    @OnClick(R.id.addFlatStanley)
+    protected void handleAddFlatStanleyButtonClick() {
+        Log.d(TAG, "Begin handleAddFlatStanleyButtonClick");
+
+        Intent detailIntent = new Intent(this, MakeFlatStanleyActivity.class);
+        detailIntent.putExtra(MakeFlatStanleyActivity.PHOTO_PATH, currentPhotoPath);
+        startActivity(detailIntent);
+
+        Log.d(TAG, "End handleAddFlatStanleyButtonClick");
     }
 
     private File createImageFile() throws IOException {
@@ -165,7 +182,16 @@ public class TakePicActivity extends AppCompatActivity {
     }
 
     private void displayPic() {
-        Bitmap bitmap = decodeAndScalePic();
+        Bitmap bitmap;
+        try {
+            bitmap = decodeAndScalePic();
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to decode and scale pic: " + e);
+            return;
+        }
+        if (bitmap == null) {
+            return;
+        }
         picTakenImageView.setImageBitmap(bitmap);
         picTakenImageView.setVisibility(View.VISIBLE);
     }
@@ -173,31 +199,68 @@ public class TakePicActivity extends AppCompatActivity {
     /**
      * Decodes image and scales it to reduce memory consumption
      */
-    private Bitmap decodeAndScalePic() {
+    private Bitmap decodeAndScalePic() throws IOException {
+        Bitmap outBitmap;
+
         // Decode image size
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(currentPhotoPath, o);
 
-        // The new size we want to scale to
-        final int TARGET_WIDTH = 1080;
-        final int TARGET_HEIGHT = 720;
+        Log.d(TAG, "width: " + o.outWidth);
+        Log.d(TAG, "height: " + o.outHeight);
 
-        if (o.outWidth <= TARGET_WIDTH || o.outHeight <= TARGET_HEIGHT) {
-            // Return image as is without any additional scaling
-            return BitmapFactory.decodeFile(currentPhotoPath, null);
+        if (o.outWidth == -1 || o.outHeight == -1) {
+            Log.e(TAG, "Unable to load bitmap. retry taking a pic.");
+            return null;
         }
+
+        // The new size we want to scale to
+        int targetWidth;
+        int targetHeight;
+        if (o.outHeight > o.outWidth) {
+            targetWidth = 720;
+            targetHeight = 1080;
+        } else if (o.outHeight == o.outWidth) {
+            targetWidth = targetHeight = 720;
+        } else {
+            targetWidth = 1080;
+            targetHeight = 720;
+        }
+
+        // preserve the orientation (portrait vs landscape)
+        ExifInterface exif = new ExifInterface(currentPhotoPath);
+        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+        Matrix m = new Matrix();
+        if (orientation == 3) {
+            m.postRotate(180);
+        } else if (orientation == 6) {
+            m.postRotate(90);
+        } else if (orientation == 8) {
+            m.postRotate(270);
+        }
+
+        Bitmap origBitmap = BitmapFactory.decodeFile(currentPhotoPath, null);
+        outBitmap = Bitmap.createBitmap(origBitmap, 0, 0, o.outWidth, o.outHeight, m, true);
+
+        if (o.outWidth <= targetWidth || o.outHeight <= targetHeight) {
+            // Return image as is without any additional scaling
+            return outBitmap;
+        }
+        outBitmap.recycle();
 
         // Find the correct scale value. It should be the power of 2.
         int scale = 1;
-        while(o.outWidth / scale / 2 >= TARGET_WIDTH &&
-                o.outHeight / scale / 2 >= TARGET_HEIGHT) {
+        while(o.outWidth / scale / 2 >= targetWidth &&
+                o.outHeight / scale / 2 >= targetHeight) {
             scale *= 2;
         }
 
         // Decode with inSampleSize
         BitmapFactory.Options o2 = new BitmapFactory.Options();
         o2.inSampleSize = scale;
-        return BitmapFactory.decodeFile(currentPhotoPath, o2);
+
+        Bitmap scaledBitmap = BitmapFactory.decodeFile(currentPhotoPath, o2);
+        return Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), m, true);
     }
 }
