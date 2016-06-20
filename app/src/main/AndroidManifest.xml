@@ -22,11 +22,21 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.LobbyActivity" />
-        <activity android:name=".activities.TakePicActivity" />
-        <activity android:name=".activities.ChoosePicActivity" />
-        <activity android:name=".activities.MakeFlatStanleyActivity" />
-        <activity android:name=".activities.ShareFlatStanleyActivity" />
-        <activity android:name=".activities.BrowseFlatStanleysActivity" />
+        <activity android:name=".activities.TakePicActivity"
+            android:parentActivityName=".activities.LobbyActivity"
+            android:label="@string/screen_name_take_pic" />
+        <activity android:name=".activities.ChoosePicActivity"
+            android:parentActivityName=".activities.LobbyActivity"
+            android:label="@string/screen_name_choose_pic" />
+        <activity android:name=".activities.MakeFlatStanleyActivity"
+            android:parentActivityName=".activities.LobbyActivity"
+            android:label="@string/screen_name_make_flat_stanley" />
+        <activity android:name=".activities.ShareFlatStanleyActivity"
+            android:parentActivityName=".activities.MakeFlatStanleyActivity"
+            android:label="@string/screen_name_share_flat_stanley" />
+        <activity android:name=".activities.BrowseFlatStanleysActivity"
+            android:parentActivityName=".activities.LobbyActivity"
+            android:label="@string/screen_name_browse_flat_stanleys" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -37,17 +47,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-        <receiver android:name=".MediaScannerBroadcastReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_SCANNER_STARTED" />
-                <data android:scheme="file" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_SCANNER_FINISHED" />
-                <data android:scheme="file" />
-            </intent-filter>
-        </receiver>
 
     </application>
 

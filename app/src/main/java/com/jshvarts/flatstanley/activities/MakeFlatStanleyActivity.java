@@ -30,6 +30,8 @@ import butterknife.OnClick;
 
 public class MakeFlatStanleyActivity extends AppCompatActivity {
 
+    public static final String PHOTO_PATH = "photoPath";
+
     private static final String TAG = "MakeFlatStanleyActivity";
 
     @BindView(R.id.flatStanleyImage)
@@ -62,6 +64,12 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
         setContentView(R.layout.make_flat_stanley);
 
         ButterKnife.bind(this);
+
+        String photoPath = getIntent().getStringExtra(PHOTO_PATH);
+        if (TextUtils.isEmpty(photoPath)) {
+            Log.e(TAG, "photoPath is empty");
+        }
+        Log.d(TAG, "photoPath: " + photoPath);
 
         View.OnLongClickListener longClickListener = new View.OnLongClickListener() {
             @Override

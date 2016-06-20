@@ -9,20 +9,27 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".activities.TakePicActivity">
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/take_pic_text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:text="Take Pic" />
-
     <ImageView
         android:id="@+id/pic_taken"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleType="fitXY"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:id="@+id/retakePicButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="re-take pic"
+        android:layout_gravity="bottom|left" />
+
+    <Button
+        android:id="@+id/addFlatStanley"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="add flat stanley"
+        android:layout_gravity="bottom|right" />
 
 </FrameLayout>
 
