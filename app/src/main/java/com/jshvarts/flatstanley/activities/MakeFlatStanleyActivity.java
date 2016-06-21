@@ -49,6 +49,8 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
 
     private static final String FILE_PROVIDER_AUTHORITY = "com.jshvarts.flatstanley.fileprovider";
 
+    private static final String CAPTION_TEXT_BUNDLE_KEY = "captionText";
+
     @BindView(R.id.flatStanleyImage)
     protected ImageView flatStanleyImageView;
 
@@ -72,12 +74,20 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
 
     private Uri photoUri;
 
+    private String captionText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.make_flat_stanley);
 
         ButterKnife.bind(this);
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(CAPTION_TEXT_BUNDLE_KEY)) {
+                captionText = savedInstanceState.getString(CAPTION_TEXT_BUNDLE_KEY);
+            }
+        }
 
         photoUri = getIntent().getParcelableExtra(PHOTO_URI);
         if (photoUri != null) {
@@ -154,38 +164,29 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
         targetLayout.setOnDragListener(dragListener);
     }
 
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (captionText != null) {
+            outState.putString(CAPTION_TEXT_BUNDLE_KEY, captionText);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
     @OnClick(R.id.addAttractionCaption)
     protected void handleAddCaptionButtonClick() {
         Log.d(TAG, "Begin handleAddCaptionButtonClick");
-        final String attractionTitle = attractionCaption.getText().toString().trim();
-        Log.d(TAG, "attraction caption: " + attractionTitle);
+        captionText = attractionCaption.getText().toString().trim();
+        Log.d(TAG, "attraction caption: " + captionText);
 
-        if (TextUtils.isEmpty(attractionTitle)) {
+        if (TextUtils.isEmpty(captionText)) {
             Log.d(TAG, "Caption is empty. Nothing to add.");
             return;
         }
 
-        InputStream is = loadAttractionBitmap();
-        if (is == null) {
-            return;
-        }
-        Bitmap attractionBitmap = BitmapFactory.decodeStream(is);
-        Bitmap bitmapOverlay = Bitmap.createBitmap(attractionBitmap.getWidth(), attractionBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        boolean flatStanleyPresent = flatStanleyImageView.getVisibility() == View.VISIBLE ? false : true;
 
-        Canvas canvas = new Canvas(bitmapOverlay);
-        canvas.drawBitmap(attractionBitmap, new Matrix(), null);
-        Paint paint = new Paint();
-        paint.setColor(Color.WHITE);
-        paint.setTextSize(72);
-
-        Rect bounds = new Rect();
-        paint.getTextBounds(attractionTitle, 0, attractionTitle.length(), bounds);
-        int boundsWidth = bounds.width() + 50; // padded by fixed amount of 50
-
-        int x = bitmapOverlay.getWidth() - boundsWidth;
-        int y = bitmapOverlay.getHeight() - 50;
-
-        canvas.drawText(attractionTitle, x, y, paint);
+        Bitmap bitmapOverlay = createBitmapOverlay(flatStanleyPresent, true);
 
         attractionImageView.setImageBitmap(bitmapOverlay);
         attractionImageView.invalidate();
@@ -208,20 +209,8 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
     protected void handleShareButtonClick() {
         Log.d(TAG, "Begin handleShareButtonClick");
 
-        InputStream is = loadAttractionBitmap();
-        if (is == null) {
-            return;
-        }
-        Bitmap attractionBitmap = BitmapFactory.decodeStream(is);
-        Bitmap flatStanleyBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.reddit);
-
-        Bitmap bitmapOverlay = Bitmap.createBitmap(attractionBitmap.getWidth(), attractionBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmapOverlay);
-        canvas.drawBitmap(attractionBitmap, new Matrix(), null);
-        canvas.drawBitmap(flatStanleyBitmap, posX, posY, null);
-
         try {
-            storeProcessedBitmap(bitmapOverlay);
+            storeProcessedBitmap(createBitmapOverlay(true, !TextUtils.isEmpty(captionText)));
         } catch (IOException e) {
             Log.d(TAG, "Unable to store the new combined image. " + e);
         }
@@ -233,6 +222,41 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
         Log.d(TAG, "End handleShareButtonClick");
     }
 
+    private Bitmap createBitmapOverlay(boolean includeFlatStanley, boolean includeCaption) {
+        if (!includeFlatStanley && !includeCaption) {
+            Log.d(TAG, "Invalid overlay requested. Must include at least one extra data item");
+            return null;
+        }
+        Log.d(TAG, "includeFlatStanley: " + includeFlatStanley +", includeCaption: " + includeCaption);
+        InputStream is = loadAttractionBitmap();
+        if (is == null) {
+            return null;
+        }
+        Bitmap attractionBitmap = BitmapFactory.decodeStream(is);
+        Bitmap bitmapOverlay = Bitmap.createBitmap(attractionBitmap.getWidth(), attractionBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmapOverlay);
+        canvas.drawBitmap(attractionBitmap, new Matrix(), null);
+
+        if (includeFlatStanley) {
+            Bitmap flatStanleyBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.reddit);
+            canvas.drawBitmap(flatStanleyBitmap, posX, posY, null);
+        }
+        if (includeCaption) {
+            Paint paint = new Paint();
+            paint.setColor(Color.WHITE);
+            paint.setTextSize(72);
+
+            Rect bounds = new Rect();
+            paint.getTextBounds(captionText, 0, captionText.length(), bounds);
+            int boundsWidth = bounds.width() + 50; // padded by fixed amount of 50
+
+            int x = bitmapOverlay.getWidth() - boundsWidth;
+            int y = bitmapOverlay.getHeight() - 50;
+
+            canvas.drawText(captionText, x, y, paint);
+        }
+        return bitmapOverlay;
+    }
     private void storeProcessedBitmap(Bitmap bitmap) throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -263,6 +287,7 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
         }
         return is;
     }
+
     private void displayPic() {
         Picasso.with(this).setIndicatorsEnabled(true);
         Picasso.with(this).load(photoUri).into(attractionImageView);
