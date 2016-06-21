@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -23,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.jshvarts.flatstanley.R;
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,7 +32,7 @@ import butterknife.OnClick;
 
 public class MakeFlatStanleyActivity extends AppCompatActivity {
 
-    public static final String PHOTO_PATH = "photoPath";
+    public static final String PHOTO_URI = "photoUri";
 
     private static final String TAG = "MakeFlatStanleyActivity";
 
@@ -58,6 +60,8 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
     private float posX;
     private float posY;
 
+    private Uri photoUri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,11 +69,14 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        String photoPath = getIntent().getStringExtra(PHOTO_PATH);
-        if (TextUtils.isEmpty(photoPath)) {
-            Log.e(TAG, "photoPath is empty");
+        photoUri = getIntent().getParcelableExtra(PHOTO_URI);
+        if (photoUri != null) {
+            Log.d(TAG, "photoUri is not empty");
+            displayPic();
+        } else {
+            Log.e(TAG, "photoUri is empty");
+            attractionImageView.setImageResource(R.drawable.attraction);
         }
-        Log.d(TAG, "photoPath: " + photoPath);
 
         View.OnLongClickListener longClickListener = new View.OnLongClickListener() {
             @Override
@@ -201,5 +208,10 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
         postcardImageView.setVisibility(View.VISIBLE);
 
         Log.d(TAG, "End handleDoneButtonClick");
+    }
+
+    private void displayPic() {
+        Picasso.with(this).setIndicatorsEnabled(true);
+        Picasso.with(this).load(photoUri).into(attractionImageView);
     }
 }

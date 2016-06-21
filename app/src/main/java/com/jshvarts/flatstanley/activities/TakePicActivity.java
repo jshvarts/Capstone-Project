@@ -20,9 +20,12 @@ import android.widget.ImageView;
 
 import com.jshvarts.flatstanley.R;
 import com.jshvarts.flatstanley.util.CameraUtil;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -35,13 +38,14 @@ public class TakePicActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PERMISSIONS_REQUEST_CAMERA = 2;
     private static final String FILE_PROVIDER_AUTHORITY = "com.jshvarts.flatstanley.fileprovider";
+    private static final String CONTENT_URI_BUNDLE_KEY = "photoUri";
 
     @BindView(R.id.pic_taken)
     protected ImageView picTakenImageView;
 
-    private String currentPhotoPath;
+    private String photoPath;
 
-    private Uri contentUri;
+    private Uri photoUri;
 
     private Intent takePictureIntent;
 
@@ -53,12 +57,28 @@ public class TakePicActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(CONTENT_URI_BUNDLE_KEY)) {
+                Log.d(TAG, "Found CONTENT_URI_BUNDLE_KEY in Bundle");
+                photoUri = savedInstanceState.getParcelable(CONTENT_URI_BUNDLE_KEY);
+                displayPic();
+                return;
+            }
+        }
         if (!CameraUtil.checkCameraAvailability(this)) {
             Log.d(TAG, "Device has no camera");
             return;
         }
 
         dispatchTakePictureIntent();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (photoUri != null) {
+            outState.putParcelable(CONTENT_URI_BUNDLE_KEY, photoUri);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     private void dispatchTakePictureIntent() {
@@ -74,10 +94,10 @@ public class TakePicActivity extends AppCompatActivity {
             }
 
             if (photoFile != null) {
-                contentUri = FileProvider.getUriForFile(this,
+                photoUri = FileProvider.getUriForFile(this,
                         FILE_PROVIDER_AUTHORITY,
                         photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 if (ContextCompat.checkSelfPermission(this,
                         android.Manifest.permission.CAMERA)
                         != PackageManager.PERMISSION_GRANTED) {
@@ -108,7 +128,7 @@ public class TakePicActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            addPicToGallery();
+            optimizePic();
             displayPic();
         }
     }
@@ -147,7 +167,7 @@ public class TakePicActivity extends AppCompatActivity {
         Log.d(TAG, "Begin handleAddFlatStanleyButtonClick");
 
         Intent detailIntent = new Intent(this, MakeFlatStanleyActivity.class);
-        detailIntent.putExtra(MakeFlatStanleyActivity.PHOTO_PATH, currentPhotoPath);
+        detailIntent.putExtra(MakeFlatStanleyActivity.PHOTO_URI, photoUri);
         startActivity(detailIntent);
 
         Log.d(TAG, "End handleAddFlatStanleyButtonClick");
@@ -166,25 +186,29 @@ public class TakePicActivity extends AppCompatActivity {
         );
 
         // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
+        photoPath = image.getAbsolutePath();
         return image;
     }
 
-    private void addPicToGallery() {
-        // TODO revisit as it does not work on Marshmallow
-        Log.d(TAG, "sending broadcast to add image to gallery.");
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(currentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setAction(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
+    private void storeProcessedBitmap(Bitmap bitmap) throws IOException {
+        OutputStream outputStream = null;
+        Log.d(TAG, "Will overwrite currentPhotoPath " + photoPath);
+        File file = new File(photoPath); // we will overwrite the existing file with this optimized one.
+        outputStream = new FileOutputStream(file);
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+        outputStream.flush();
+        outputStream.close(); // do not forget to close the stream
+
+        // Deal with WRITE_EXTERNAL_STORAGE permission on Marshmallow if you need to store the image to gallery
+        //MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
     }
 
-    private void displayPic() {
+    private void optimizePic() {
         Bitmap bitmap;
         try {
             bitmap = decodeAndScalePic();
+            storeProcessedBitmap(bitmap);
         } catch (IOException e) {
             Log.e(TAG, "Failed to decode and scale pic: " + e);
             return;
@@ -192,7 +216,11 @@ public class TakePicActivity extends AppCompatActivity {
         if (bitmap == null) {
             return;
         }
-        picTakenImageView.setImageBitmap(bitmap);
+    }
+
+    private void displayPic() {
+        Picasso.with(this).setIndicatorsEnabled(true);
+        Picasso.with(this).load(photoUri).into(picTakenImageView);
         picTakenImageView.setVisibility(View.VISIBLE);
     }
 
@@ -205,10 +233,7 @@ public class TakePicActivity extends AppCompatActivity {
         // Decode image size
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(currentPhotoPath, o);
-
-        Log.d(TAG, "width: " + o.outWidth);
-        Log.d(TAG, "height: " + o.outHeight);
+        BitmapFactory.decodeFile(photoPath, o);
 
         if (o.outWidth == -1 || o.outHeight == -1) {
             Log.e(TAG, "Unable to load bitmap. retry taking a pic.");
@@ -216,7 +241,7 @@ public class TakePicActivity extends AppCompatActivity {
         }
 
         // preserve the orientation (portrait vs landscape)
-        ExifInterface exif = new ExifInterface(currentPhotoPath);
+        ExifInterface exif = new ExifInterface(photoPath);
         int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
         Matrix m = new Matrix();
         if (orientation == 3) {
@@ -240,12 +265,9 @@ public class TakePicActivity extends AppCompatActivity {
             targetHeight = getResources().getInteger(R.integer.pic_height_px);
         }
 
-        Log.d(TAG, "targetWidth: " + targetWidth);
-        Log.d(TAG, "targetHeight: " + targetHeight);
-
         if (o.outWidth <= targetWidth && o.outHeight <= targetHeight) {
             // Return image as is without any additional scaling
-            Bitmap origBitmap = BitmapFactory.decodeFile(currentPhotoPath, null);
+            Bitmap origBitmap = BitmapFactory.decodeFile(photoPath, null);
             outBitmap = Bitmap.createBitmap(origBitmap, 0, 0, o.outWidth, o.outHeight, m, true);
             origBitmap.recycle();
 
@@ -263,7 +285,7 @@ public class TakePicActivity extends AppCompatActivity {
         BitmapFactory.Options scaleOptions = new BitmapFactory.Options();
         scaleOptions.inSampleSize = scale;
 
-        Bitmap scaledBitmap = BitmapFactory.decodeFile(currentPhotoPath, scaleOptions);
+        Bitmap scaledBitmap = BitmapFactory.decodeFile(photoPath, scaleOptions);
         return Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), m, true);
     }
 }
