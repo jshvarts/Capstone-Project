@@ -10,6 +10,8 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Environment;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -22,9 +24,18 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.jshvarts.flatstanley.R;
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,14 +47,13 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
 
     private static final String TAG = "MakeFlatStanleyActivity";
 
+    private static final String FILE_PROVIDER_AUTHORITY = "com.jshvarts.flatstanley.fileprovider";
+
     @BindView(R.id.flatStanleyImage)
     protected ImageView flatStanleyImageView;
 
     @BindView(R.id.attractionImage)
     protected ImageView attractionImageView;
-
-    @BindView(R.id.postcardImage)
-    protected ImageView postcardImageView;
 
     @BindView(R.id.target_layout)
     protected FrameLayout targetLayout;
@@ -155,14 +165,18 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
             return;
         }
 
-        Bitmap attractionBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.attraction);
+        InputStream is = loadAttractionBitmap();
+        if (is == null) {
+            return;
+        }
+        Bitmap attractionBitmap = BitmapFactory.decodeStream(is);
         Bitmap bitmapOverlay = Bitmap.createBitmap(attractionBitmap.getWidth(), attractionBitmap.getHeight(), Bitmap.Config.ARGB_8888);
 
         Canvas canvas = new Canvas(bitmapOverlay);
         canvas.drawBitmap(attractionBitmap, new Matrix(), null);
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
-        paint.setTextSize(64);
+        paint.setTextSize(72);
 
         Rect bounds = new Rect();
         paint.getTextBounds(attractionTitle, 0, attractionTitle.length(), bounds);
@@ -190,11 +204,15 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
         Log.d(TAG, "End handleResetButtonClick");
     }
 
-    @OnClick(R.id.doneButton)
-    protected void handleDoneButtonClick() {
-        Log.d(TAG, "Begin handleDoneButtonClick");
+    @OnClick(R.id.shareButton)
+    protected void handleShareButtonClick() {
+        Log.d(TAG, "Begin handleShareButtonClick");
 
-        Bitmap attractionBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.attraction);
+        InputStream is = loadAttractionBitmap();
+        if (is == null) {
+            return;
+        }
+        Bitmap attractionBitmap = BitmapFactory.decodeStream(is);
         Bitmap flatStanleyBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.reddit);
 
         Bitmap bitmapOverlay = Bitmap.createBitmap(attractionBitmap.getWidth(), attractionBitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -202,14 +220,49 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
         canvas.drawBitmap(attractionBitmap, new Matrix(), null);
         canvas.drawBitmap(flatStanleyBitmap, posX, posY, null);
 
-        attractionCaption.setVisibility(View.GONE);
-        addCaptionButton.setVisibility(View.GONE);
-        postcardImageView.setImageBitmap(bitmapOverlay);
-        postcardImageView.setVisibility(View.VISIBLE);
+        try {
+            storeProcessedBitmap(bitmapOverlay);
+        } catch (IOException e) {
+            Log.d(TAG, "Unable to store the new combined image. " + e);
+        }
 
-        Log.d(TAG, "End handleDoneButtonClick");
+        Intent shareActivityIntent = new Intent(this, ShareFlatStanleyActivity.class);
+        shareActivityIntent.putExtra(ShareFlatStanleyActivity.PHOTO_URI, photoUri);
+        startActivity(shareActivityIntent);
+
+        Log.d(TAG, "End handleShareButtonClick");
     }
 
+    private void storeProcessedBitmap(Bitmap bitmap) throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "IMG_" + timeStamp;
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        Log.d(TAG, "ExternalFilesDir: " + storageDir.getAbsolutePath());
+
+        File file = new File(storageDir, imageFileName + ".jpg");
+        OutputStream outputStream = new FileOutputStream(file);
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream);
+        outputStream.flush();
+        outputStream.close();
+
+        photoUri = FileProvider.getUriForFile(this,
+                FILE_PROVIDER_AUTHORITY,
+                file);
+    }
+
+    private InputStream loadAttractionBitmap() {
+        InputStream is;
+        try {
+            is = getContentResolver().openInputStream(photoUri);
+        } catch (IOException e) {
+            Log.d(TAG, "Unable to open photo for uri " + photoUri);
+            Toast.makeText(MakeFlatStanleyActivity.this, "Unable to open photo.", Toast.LENGTH_LONG).show();
+            return null;
+        }
+        return is;
+    }
     private void displayPic() {
         Picasso.with(this).setIndicatorsEnabled(true);
         Picasso.with(this).load(photoUri).into(attractionImageView);
