@@ -166,9 +166,9 @@ public class TakePicActivity extends AppCompatActivity {
     protected void handleAddFlatStanleyButtonClick() {
         Log.d(TAG, "Begin handleAddFlatStanleyButtonClick");
 
-        Intent detailIntent = new Intent(this, MakeFlatStanleyActivity.class);
-        detailIntent.putExtra(MakeFlatStanleyActivity.PHOTO_URI, photoUri);
-        startActivity(detailIntent);
+        Intent makeIntent = new Intent(this, MakeFlatStanleyActivity.class);
+        makeIntent.putExtra(MakeFlatStanleyActivity.PHOTO_URI, photoUri);
+        startActivity(makeIntent);
 
         Log.d(TAG, "End handleAddFlatStanleyButtonClick");
     }
@@ -198,7 +198,7 @@ public class TakePicActivity extends AppCompatActivity {
 
         bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
         outputStream.flush();
-        outputStream.close(); // do not forget to close the stream
+        outputStream.close();
 
         // Deal with WRITE_EXTERNAL_STORAGE permission on Marshmallow if you need to store the image to gallery
         //MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());

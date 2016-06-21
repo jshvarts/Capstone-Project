@@ -15,7 +15,7 @@
         android:id="@+id/source_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight=".5"
+        android:layout_weight=".1"
         android:orientation="horizontal">
 
         <ImageView
@@ -37,20 +37,13 @@
             android:layout_height="wrap_content"
             android:text="add caption" />
 
-        <ImageView
-            android:id="@+id/postcardImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="50dp"
-            android:visibility="gone" />
-
     </LinearLayout>
 
     <FrameLayout
         android:id="@+id/target_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight=".5">
+        android:layout_weight=".9">
 
         <ImageView
             android:id="@+id/attractionImage"
@@ -67,10 +60,10 @@
             android:layout_gravity="bottom|left"/>
 
         <Button
-            android:id="@+id/doneButton"
+            android:id="@+id/shareButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="done"
+            android:text="share"
             android:layout_gravity="bottom|right"/>
     </FrameLayout>
 
