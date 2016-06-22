@@ -22,7 +22,7 @@
             android:id="@+id/flatStanleyImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/reddit" />
+            android:src="@drawable/flat_stanley" />
 
         <EditText
             android:id="@+id/attractionCaption"
@@ -49,8 +49,7 @@
             android:id="@+id/attractionImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/attraction"
-            android:layout_marginBottom="50dp" />
+            android:layout_gravity="center" />
 
         <Button
             android:id="@+id/resetButton"
