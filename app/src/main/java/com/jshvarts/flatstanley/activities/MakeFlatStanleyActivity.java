@@ -95,7 +95,6 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
             displayPic();
         } else {
             Log.e(TAG, "photoUri is empty");
-            attractionImageView.setImageResource(R.drawable.attraction);
         }
 
         View.OnLongClickListener longClickListener = new View.OnLongClickListener() {
@@ -238,7 +237,7 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
         canvas.drawBitmap(attractionBitmap, new Matrix(), null);
 
         if (includeFlatStanley) {
-            Bitmap flatStanleyBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.reddit);
+            Bitmap flatStanleyBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.flat_stanley);
             canvas.drawBitmap(flatStanleyBitmap, posX, posY, null);
         }
         if (includeCaption) {

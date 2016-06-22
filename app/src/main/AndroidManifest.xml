@@ -14,14 +14,13 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.SpringboardActivity">
+        <activity android:name=".activities.LobbyActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.LobbyActivity" />
         <activity android:name=".activities.TakePicActivity"
             android:parentActivityName=".activities.LobbyActivity"
             android:label="@string/screen_name_take_pic" />

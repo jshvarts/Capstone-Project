@@ -38,7 +38,6 @@ public class ShareFlatStanleyActivity extends AppCompatActivity {
             displayPic();
         } else {
             Log.e(TAG, "photoUri is empty");
-            postcardImageView.setImageResource(R.drawable.attraction);
         }
     }
 
