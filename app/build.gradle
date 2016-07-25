@@ -12,11 +12,18 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE-FIREBASE.txt'
+        exclude 'META-INF/NOTICE'
     }
 }
 
@@ -27,5 +34,8 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton:butterknife:8.1.0'
     compile 'com.google.guava:guava:19.0'
+    compile 'com.firebase:firebase-client-android:2.5.2+'
     apt 'com.jakewharton:butterknife-compiler:8.1.0'
 }
+
+apply plugin: 'com.google.gms.google-services'
