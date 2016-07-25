@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "122099250087",
+    "firebase_url": "https://flat-stanley.firebaseio.com",
+    "project_id": "flat-stanley",
+    "storage_bucket": "flat-stanley.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:122099250087:android:ce3b285845bca5ac",
+        "android_client_info": {
+          "package_name": "com.jshvarts.flatstanley"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "122099250087-cp02b5i49ln3ojj0bcdk7e03ngu4m75a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAX1_4VkyLgur98qz7u-skwW2qEWFohJFw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
