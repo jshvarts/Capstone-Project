@@ -215,7 +215,10 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
         }
 
         Intent shareActivityIntent = new Intent(this, ShareFlatStanleyActivity.class);
-        shareActivityIntent.putExtra(ShareFlatStanleyActivity.PHOTO_URI, photoUri);
+        shareActivityIntent.putExtra(ShareFlatStanleyActivity.PHOTO_URI_EXTRA, photoUri);
+        if (!TextUtils.isEmpty(captionText)) {
+            shareActivityIntent.putExtra(ShareFlatStanleyActivity.CAPTION_TEXT_EXTRA, captionText);
+        }
         startActivity(shareActivityIntent);
 
         Log.d(TAG, "End handleShareButtonClick");
