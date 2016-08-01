@@ -35,6 +35,9 @@
         <activity android:name=".activities.ShareFlatStanleyActivity"
             android:parentActivityName=".activities.MakeFlatStanleyActivity"
             android:label="@string/screen_name_share_flat_stanley" />
+        <activity android:name=".activities.ShareExistingFlatStanleyActivity"
+            android:parentActivityName=".activities.BrowseFlatStanleysActivity"
+            android:label="@string/screen_name_share_flat_stanley" />
         <activity android:name=".activities.BrowseFlatStanleysActivity"
             android:parentActivityName=".activities.LobbyActivity"
             android:label="@string/screen_name_browse_flat_stanleys" />

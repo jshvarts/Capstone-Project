@@ -9,6 +9,10 @@ public class Constants {
     public static final String TIMESTAMP_FIELD = "timestamp";
 
     public static String getEntrytUri(Date date) {
-        return FIREBASE_URL + "/items/" + date.getTime();
+        if (date != null) {
+            return FIREBASE_URL + "/items/" + date.getTime();
+        } else {
+            return FIREBASE_URL + "/items";
+        }
     }
 }

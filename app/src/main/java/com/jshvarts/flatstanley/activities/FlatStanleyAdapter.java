@@ -1,11 +1,16 @@
 package com.jshvarts.flatstanley.activities;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.text.TextUtils;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jshvarts.flatstanley.R;
@@ -36,7 +41,7 @@ public class FlatStanleyAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return Long.valueOf(flatStanleys.get(position).getId()).longValue();
     }
 
     @Override
@@ -56,9 +61,19 @@ public class FlatStanleyAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        Picasso.with(context).load(R.drawable.flat_stanley_logo).into(holder.imageView);
-        holder.caption.setText(flatStanleys.get(position).getCaption());
-        holder.timestamp.setText(flatStanleys.get(position).getTimestamp());
+        byte[] decodedBytes = Base64.decode(flatStanleys.get(position).getImageData(),Base64.DEFAULT);
+        Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+        holder.imageView.setImageBitmap(decodedBitmap);
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(decodedBitmap.getWidth()/2, decodedBitmap.getHeight()/2);
+        holder.imageView.setLayoutParams(layoutParams);
+
+        String caption = flatStanleys.get(position).getCaption();
+        StringBuilder captionBuilder = new StringBuilder("Caption: ");
+        captionBuilder.append(TextUtils.isEmpty(caption) ? "N/A" : caption);
+        holder.caption.setText(captionBuilder.toString());
+
+        holder.timestamp.setText("Created on: " + flatStanleys.get(position).getTimestamp());
 
         return convertView;
     }
