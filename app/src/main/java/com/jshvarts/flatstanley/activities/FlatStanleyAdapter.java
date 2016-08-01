@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.jshvarts.flatstanley.R;
 import com.jshvarts.flatstanley.model.FlatStanley;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -69,9 +68,11 @@ public class FlatStanleyAdapter extends BaseAdapter {
         holder.imageView.setLayoutParams(layoutParams);
 
         String caption = flatStanleys.get(position).getCaption();
-        StringBuilder captionBuilder = new StringBuilder();
-        captionBuilder.append(TextUtils.isEmpty(caption) ? "N/A" : caption);
-        holder.caption.setText(captionBuilder.toString());
+        if (TextUtils.isEmpty(caption)) {
+            holder.caption.setVisibility(View.GONE);
+        } else {
+            holder.caption.setText(caption);
+        }
 
         holder.timestamp.setText("Created on: " + flatStanleys.get(position).getTimestamp());
 
