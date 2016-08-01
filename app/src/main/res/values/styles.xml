@@ -9,4 +9,8 @@
 
     </style>
 
+    <style name="progressBar" parent="Widget.AppCompat.ProgressBar">
+        <item name="android:indeterminateProgressStyle">@android:style/Widget.ProgressBar.Small</item>
+    </style>
+
 </resources>
