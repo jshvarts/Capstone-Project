@@ -34,13 +34,12 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
 
         final List<FlatStanley> flatStanleys = new ArrayList();
 
-        firebase = new Firebase(Constants.getEntrytUri(null));
+        firebase = new Firebase(Constants.getEntrytUri());
         firebase.addValueEventListener(new ValueEventListener() {
            @Override
            public void onDataChange(DataSnapshot snapshot) {
                System.out.println("There are " + snapshot.getChildrenCount() + " items");
                for (DataSnapshot dataSnapshot: snapshot.getChildren()) {
-
                    FlatStanley flatStanley = dataSnapshot.getValue(FlatStanley.class);
                    Log.d(TAG, "imageData: " + flatStanley.getImageData());
                    Log.d(TAG, "caption: " + flatStanley.getCaption());

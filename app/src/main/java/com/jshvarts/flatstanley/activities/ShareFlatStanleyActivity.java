@@ -64,7 +64,7 @@ public class ShareFlatStanleyActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         now = getUriTimestamp();
-        firebase = new Firebase(Constants.getEntrytUri(now));
+        firebase = new Firebase(Constants.getEntrytUri(now.getTime()));
 
         photoUri = getIntent().getParcelableExtra(PHOTO_URI_EXTRA);
         captionText = getIntent().getStringExtra(CAPTION_TEXT_EXTRA);
