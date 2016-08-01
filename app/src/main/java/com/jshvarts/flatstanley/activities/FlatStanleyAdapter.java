@@ -69,7 +69,7 @@ public class FlatStanleyAdapter extends BaseAdapter {
         holder.imageView.setLayoutParams(layoutParams);
 
         String caption = flatStanleys.get(position).getCaption();
-        StringBuilder captionBuilder = new StringBuilder("Caption: ");
+        StringBuilder captionBuilder = new StringBuilder();
         captionBuilder.append(TextUtils.isEmpty(caption) ? "N/A" : caption);
         holder.caption.setText(captionBuilder.toString());
 
