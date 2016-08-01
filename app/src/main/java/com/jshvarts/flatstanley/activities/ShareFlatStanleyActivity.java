@@ -23,6 +23,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -52,6 +53,8 @@ public class ShareFlatStanleyActivity extends AppCompatActivity {
 
     private String captionText;
 
+    private Date now;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +63,8 @@ public class ShareFlatStanleyActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        firebase = new Firebase(Constants.FIREBASE_URL + "/items");
+        now = getUriTimestamp();
+        firebase = new Firebase(Constants.getEntrytUri(now));
 
         photoUri = getIntent().getParcelableExtra(PHOTO_URI_EXTRA);
         captionText = getIntent().getStringExtra(CAPTION_TEXT_EXTRA);
@@ -142,7 +146,7 @@ public class ShareFlatStanleyActivity extends AppCompatActivity {
 
         firebase.child(Constants.IMAGE_DATA_FIELD).setValue(base64Image);
         firebase.child(Constants.CAPTION_FIELD).setValue(TextUtils.isEmpty(captionText) ? "" : captionText);
-        firebase.child(Constants.TIMESTAMP_FIELD).setValue(getLocalizedDate());
+        firebase.child(Constants.TIMESTAMP_FIELD).setValue(getDisplayTimestamp());
     }
 
     /**
@@ -155,8 +159,13 @@ public class ShareFlatStanleyActivity extends AppCompatActivity {
         shareButton.setEnabled(false);
     }
 
-    private Date getLocalizedDate() {
+    private Date getUriTimestamp() {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"), Locale.US);
         return cal.getTime();
+    }
+
+    private String getDisplayTimestamp() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("M/dd/yyyy hh:mm:ssa");
+        return dateFormat.format(now);
     }
 }
