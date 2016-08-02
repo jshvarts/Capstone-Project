@@ -4,12 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingStart="@dimen/activity_horizontal_margin"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:weightSum="1"
     android:orientation="vertical"
     tools:context=".activities.MakeFlatStanleyActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_flat_stanley_instructions"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="15dp" />
 
     <LinearLayout
         android:id="@+id/source_layout"
@@ -28,14 +35,14 @@
             android:id="@+id/attractionCaption"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:maxLength="20"
+            android:maxLength="24"
             android:inputType="text" />
 
         <Button
             android:id="@+id/addAttractionCaption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="add caption" />
+            android:text="@string/add_caption_button_text" />
 
     </LinearLayout>
 
@@ -53,17 +60,19 @@
 
         <Button
             android:id="@+id/resetButton"
+            android:contentDescription="@string/reset_button_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="reset"
-            android:layout_gravity="bottom|left"/>
+            android:text="@string/reset_button_text"
+            android:layout_gravity="bottom|start"/>
 
         <Button
             android:id="@+id/shareButton"
+            android:contentDescription="@string/share_button_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="share"
-            android:layout_gravity="bottom|right"/>
+            android:text="@string/share_button_text"
+            android:layout_gravity="bottom|end"/>
     </FrameLayout>
 
 </LinearLayout>

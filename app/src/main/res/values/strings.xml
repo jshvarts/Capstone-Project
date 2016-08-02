@@ -11,4 +11,16 @@
 
     <string name="shared_message_text">Shared successfully. Thanks!</string>
     <string name="shared_button_text">Shared</string>
+    <string name="add_flat_stanley_instructions">Hold and drag Flat Stanley onto your image.</string>
+
+    <string name="add_caption_button_text">Add Caption</string>
+    <string name="reset_button_text">Reset</string>
+    <string name="share_button_text">Share</string>
+    <string name="take_pic_button_text">Take Pic</string>
+    <string name="re_take_pic_button_text">Re-take Pic</string>
+    <string name="upload_pic_button_text">Upload Pic</string>
+    <string name="browse_button_text">Browse</string>
+    <string name="share_with_others_button_text">Share with others</string>
+    <string name="add_flat_stanley_button_text">Add Flat Stanley</string>
+    <string name="flat_stanley_logo">Flat Stanley logo</string>
 </resources>
