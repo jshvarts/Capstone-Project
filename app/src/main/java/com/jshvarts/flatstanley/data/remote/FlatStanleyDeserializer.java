@@ -20,6 +20,7 @@ public class FlatStanleyDeserializer implements JsonDeserializer<FlatStanleyItem
         List<FlatStanley> flatStanleys = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             FlatStanley flatStanley = context.deserialize(entry.getValue(), FlatStanley.class);
+            flatStanley.setId(entry.getKey());
             flatStanleys.add(flatStanley);
         }
         return new FlatStanleyItems(flatStanleys);

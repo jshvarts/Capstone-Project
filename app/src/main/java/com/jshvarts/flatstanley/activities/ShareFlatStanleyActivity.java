@@ -1,13 +1,18 @@
 package com.jshvarts.flatstanley.activities;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -41,8 +46,6 @@ public class ShareFlatStanleyActivity extends AppCompatActivity {
 
     public static final String CAPTION_TEXT_EXTRA = "caption";
 
-    private Firebase firebase;
-
     @BindView(R.id.postcardImage)
     protected ImageView postcardImageView;
 
@@ -54,6 +57,10 @@ public class ShareFlatStanleyActivity extends AppCompatActivity {
     private String captionText;
 
     private Date now;
+
+    private ShareActionProvider shareActionProvider;
+
+    private Firebase firebase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +84,39 @@ public class ShareFlatStanleyActivity extends AppCompatActivity {
         } else {
             Log.e(TAG, "photoUri is empty");
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate menu resource file.
+        getMenuInflater().inflate(R.menu.share_menu, menu);
+
+        // Locate MenuItem with ShareActionProvider
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        Intent shareIntent = createShareIntent();
+        if (shareIntent == null) {
+            return false;
+        }
+
+        shareActionProvider.setShareIntent(shareIntent);
+        return true;
+    }
+
+    private Intent createShareIntent() {
+        if (photoUri == null) {
+            Log.e(TAG, "photoUri is not available for sharing");
+            return null;
+        }
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, photoUri);
+        shareIntent.setType("image/png");
+        return shareIntent;
     }
 
     @OnClick(R.id.shareButton)

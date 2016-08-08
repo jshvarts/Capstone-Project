@@ -25,4 +25,5 @@
     <string name="flat_stanley_logo">Flat Stanley logo</string>
     <string name="show_my_only_pics">Show my pics only:</string>
     <string name="search_by_caption_hint">Search by caption</string>
+    <string name="action_share">Share</string>
 </resources>

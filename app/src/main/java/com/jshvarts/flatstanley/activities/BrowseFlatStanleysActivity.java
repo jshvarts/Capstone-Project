@@ -54,8 +54,6 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
 
     private static final String TAG = "BrowseFlatStanleys";
 
-    private Firebase firebase;
-
     @BindView(R.id.progress_bar)
     protected ProgressBar progressBar;
 
@@ -68,11 +66,15 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
     @BindView(R.id.listView)
     protected ListView listView;
 
-    private FlatStanleyRestApiClient flatStanleyRestApiClient;
+    private Firebase firebase;
 
-    List<FlatStanley> flatStanleys;
+    private List<FlatStanley> flatStanleys;
+
+    private SearchAsyncTask searchAsyncTask;
 
     private SharedByOthersAdapter sharedByOthersAdapter;
+
+    private MyPicsAdapter myPicsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,15 +133,7 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
             }
             c.close();
 
-            MyPicsAdapter flatStanleysAdapter = new MyPicsAdapter(BrowseFlatStanleysActivity.this, flatStanleys);
-            ListView listViewItems = (ListView) findViewById(R.id.listView);
-            listViewItems.setAdapter(flatStanleysAdapter);
-            listViewItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    startShareActivity(id, true);
-                }
-            });
+            changeMyFlatStanleyPicsAdapterData(flatStanleys);
         }
     }
 
@@ -152,6 +146,8 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 progressBar.setVisibility(View.GONE);
+                toggleButton.setEnabled(true);
+
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     FlatStanley flatStanley = dataSnapshot.getValue(FlatStanley.class);
                     flatStanley.setId(dataSnapshot.getKey());
@@ -169,8 +165,11 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
     }
 
     private void searchPicsByOthers() {
-        String query = searchByCaptionEditText.getText().toString();
-        new SearchAsyncTask(new FlatStanleyRetrofitRestApiClient()).execute(query);
+        if (searchAsyncTask != null && searchAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
+            searchAsyncTask.cancel(true);
+        }
+        searchAsyncTask = new SearchAsyncTask(new FlatStanleyRetrofitRestApiClient());
+        searchAsyncTask.execute(searchByCaptionEditText.getText().toString());
     }
 
     private class SearchAsyncTask extends AsyncTask<String, Void, FlatStanleyItems> {
@@ -221,6 +220,7 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
                 Log.d(TAG, "path: " + flatStanley.getImageData());
                 Log.d(TAG, "caption: " + flatStanley.getCaption());
                 Log.d(TAG, "timestamp: " + flatStanley.getTimestamp());
+                Log.d(TAG, "id: " + flatStanley.getId());
                 flatStanleyList.add(flatStanley);
             }
 
@@ -257,6 +257,20 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 startShareActivity(id, false);
+            }
+        });
+    }
+
+    private void changeMyFlatStanleyPicsAdapterData(List<FlatStanley> flatStanleys) {
+        myPicsAdapter = new MyPicsAdapter(BrowseFlatStanleysActivity.this, flatStanleys);
+        ListView listViewItems = (ListView) findViewById(R.id.listView);
+        listViewItems.setAdapter(myPicsAdapter);
+        myPicsAdapter.notifyDataSetChanged();
+
+        listViewItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startShareActivity(id, true);
             }
         });
     }
