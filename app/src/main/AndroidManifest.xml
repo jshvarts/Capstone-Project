@@ -46,7 +46,8 @@
             android:label="@string/screen_name_share_flat_stanley" />
         <activity android:name=".activities.BrowseFlatStanleysActivity"
             android:parentActivityName=".activities.LobbyActivity"
-            android:label="@string/screen_name_browse_flat_stanleys" />
+            android:label="@string/screen_name_browse_flat_stanleys"
+            android:windowSoftInputMode="stateHidden"/>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
