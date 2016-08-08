@@ -1,6 +1,7 @@
 package com.jshvarts.flatstanley.activities;
 
 import android.content.ClipData;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,11 +36,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static com.jshvarts.flatstanley.data.MyPicsContract.CONTENT_URI;
+import static com.jshvarts.flatstanley.data.MyPicsContract.MyPicsEntry.COLUMN_PATH;
+import static com.jshvarts.flatstanley.data.MyPicsContract.MyPicsEntry.COLUMN_CAPTION;
+import static com.jshvarts.flatstanley.data.MyPicsContract.MyPicsEntry.COLUMN_TIMESTAMP;
 
 public class MakeFlatStanleyActivity extends AppCompatActivity {
 
@@ -208,12 +217,26 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
     protected void handleShareButtonClick() {
         Log.d(TAG, "Begin handleShareButtonClick");
 
+        // store bitmap
         try {
             storeProcessedBitmap(createBitmapOverlay(true, !TextUtils.isEmpty(captionText)));
         } catch (IOException e) {
             Log.d(TAG, "Unable to store the new combined image. " + e);
         }
 
+        // store db record
+        ContentValues myPicValues = new ContentValues();
+        myPicValues.put(COLUMN_PATH, photoUri.toString());
+        myPicValues.put(COLUMN_CAPTION, !TextUtils.isEmpty(captionText) ? captionText : "");
+        myPicValues.put(COLUMN_TIMESTAMP, getDisplayTimestamp());
+        Uri contentUri = getContentResolver().insert(CONTENT_URI, myPicValues);
+        if (contentUri != null) {
+            Log.d(TAG, "Successfully stored my pic metadata");
+        } else {
+            Log.e(TAG, "Failed to store my pic metadata");
+        }
+
+        // share
         Intent shareActivityIntent = new Intent(this, ShareFlatStanleyActivity.class);
         shareActivityIntent.putExtra(ShareFlatStanleyActivity.PHOTO_URI_EXTRA, photoUri);
         if (!TextUtils.isEmpty(captionText)) {
@@ -293,5 +316,15 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
     private void displayPic() {
         Picasso.with(this).setIndicatorsEnabled(true);
         Picasso.with(this).load(photoUri).into(attractionImageView);
+    }
+
+    private Date getTimestamp() {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"), Locale.US);
+        return cal.getTime();
+    }
+
+    private String getDisplayTimestamp() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("M/dd/yyyy hh:mm:ssa");
+        return dateFormat.format(getTimestamp());
     }
 }

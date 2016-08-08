@@ -16,6 +16,12 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <provider
+            android:name=".data.MyContentProvider"
+            android:authorities="com.jshvarts.flatstanley.data"
+            android:exported="false"/>
+
         <activity android:name=".activities.LobbyActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

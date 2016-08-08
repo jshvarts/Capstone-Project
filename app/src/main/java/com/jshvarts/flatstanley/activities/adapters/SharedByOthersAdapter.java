@@ -1,4 +1,4 @@
-package com.jshvarts.flatstanley.activities;
+package com.jshvarts.flatstanley.activities.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -18,12 +18,12 @@ import com.jshvarts.flatstanley.model.FlatStanley;
 
 import java.util.List;
 
-public class FlatStanleyAdapter extends BaseAdapter {
+public class SharedByOthersAdapter extends BaseAdapter {
 
     private Context context;
     private List<FlatStanley> flatStanleys;
 
-    public FlatStanleyAdapter(Context context, List<FlatStanley> flatStanleys) {
+    public SharedByOthersAdapter(Context context, List<FlatStanley> flatStanleys) {
         this.context = context;
         this.flatStanleys = flatStanleys;
     }
