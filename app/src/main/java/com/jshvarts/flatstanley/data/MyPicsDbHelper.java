@@ -28,7 +28,7 @@ public class MyPicsDbHelper extends SQLiteOpenHelper {
 
     private static final String SQL_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
-    private static final String DEFAULT_SORT_ORDER = COLUMN_TIMESTAMP;
+    private static final String DEFAULT_SORT_ORDER = COLUMN_TIMESTAMP + " desc";
 
     private static final String SQL_FIND_TABLE = "SELECT name FROM sqlite_master WHERE type='table' " +
             "AND name='"+TABLE_NAME+"'";
