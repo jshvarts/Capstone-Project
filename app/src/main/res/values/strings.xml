@@ -23,4 +23,5 @@
     <string name="share_with_others_button_text">Share with others</string>
     <string name="add_flat_stanley_button_text">Add Flat Stanley</string>
     <string name="flat_stanley_logo">Flat Stanley logo</string>
+    <string name="show_my_only_pics">Show my pics only:</string>
 </resources>

@@ -7,17 +7,28 @@
     android:paddingEnd="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
 
-    <Button
-        android:id="@+id/mine_only"
+    <TextView
+        android:id="@+id/mine_only_toggle_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="mine only"/>
+        android:text="@string/show_my_only_pics"
+        android:textSize="@dimen/show_my_only_pics_text_size"
+        android:layout_alignBaseline="@+id/mine_only_toggle"
+        android:layout_marginEnd="10dp"/>
+
+    <ToggleButton
+        android:id="@+id/mine_only_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:layout_toEndOf="@+id/mine_only_toggle_label"/>
 
     <ListView
         android:minHeight="40dp"
         android:id="@+id/listView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/mine_only_toggle">
     </ListView>
 
     <ProgressBar xmlns:android="http://schemas.android.com/apk/res/android"
