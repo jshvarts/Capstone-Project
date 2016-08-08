@@ -1,14 +1,19 @@
 package com.jshvarts.flatstanley.activities;
 
 import android.content.ContentUris;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.firebase.client.DataSnapshot;
@@ -35,12 +40,16 @@ public class ShareExistingFlatStanleyActivity extends AppCompatActivity {
     public static final String IS_PIC_LOCAL_EXTRA = "isLocal";
     public static final String ITEM_ID_EXTRA = "itemId";
 
+    @BindView(R.id.postcardImage)
+    protected ImageView postcardImageView;
+
+    private ShareActionProvider shareActionProvider;
+
+    private Uri photoUri;
+
     private Firebase firebase;
 
     private long itemId;
-
-    @BindView(R.id.postcardImage)
-    protected ImageView postcardImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +68,40 @@ public class ShareExistingFlatStanleyActivity extends AppCompatActivity {
         } else {
             Log.e(TAG, "itemId is invalid");
         }
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate menu resource file.
+        getMenuInflater().inflate(R.menu.share_menu, menu);
+
+        // Locate MenuItem with ShareActionProvider
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        Intent shareIntent = createShareIntent();
+        if (shareIntent == null) {
+            return false;
+        }
+
+        shareActionProvider.setShareIntent(shareIntent);
+        return true;
+    }
+
+    private Intent createShareIntent() {
+        if (photoUri == null) {
+            Log.e(TAG, "photoUri is not available for sharing");
+            return null;
+        }
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, photoUri);
+        shareIntent.setType("image/png");
+        return shareIntent;
     }
 
     private void displayPic() {
@@ -85,14 +128,14 @@ public class ShareExistingFlatStanleyActivity extends AppCompatActivity {
             }
             c.close();
 
-            Uri uri = Uri.parse(path);
+            photoUri = Uri.parse(path);
             InputStream inputStream;
             try {
-                inputStream = getContentResolver().openInputStream(uri);
+                inputStream = getContentResolver().openInputStream(photoUri);
                 Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                 postcardImageView.setImageBitmap(bitmap);
             } catch (IOException e) {
-                Log.e(TAG, "Unable to open photo for uri " + uri);
+                Log.e(TAG, "Unable to open photo for uri " + photoUri);
             }
         }
     }

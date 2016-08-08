@@ -16,9 +16,6 @@ public class LobbyActivity extends AppCompatActivity {
     @BindView(R.id.takePic)
     protected Button takePicButton;
 
-    @BindView(R.id.uploadPic)
-    protected Button uploadPicButton;
-
     @BindView(R.id.browse)
     protected Button browseButton;
 
@@ -34,12 +31,6 @@ public class LobbyActivity extends AppCompatActivity {
     @OnClick(R.id.takePic)
     protected void handleTakePicButtonClick() {
         Intent takePicIntent = new Intent(this, TakePicActivity.class);
-        startActivity(takePicIntent);
-    }
-
-    @OnClick(R.id.uploadPic)
-    protected void handleUploadPicButtonClick() {
-        Intent takePicIntent = new Intent(this, ChoosePicActivity.class);
         startActivity(takePicIntent);
     }
 
