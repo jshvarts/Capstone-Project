@@ -23,12 +23,22 @@
         android:layout_marginBottom="30dp"
         android:layout_toEndOf="@+id/mine_only_toggle_label"/>
 
+    <EditText
+        android:id="@+id/search_by_caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/search_by_caption_hint"
+        android:layout_below="@+id/mine_only_toggle_label"
+        android:inputType="text"
+        android:layout_marginTop="10dp"/>
+
     <ListView
         android:minHeight="40dp"
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/mine_only_toggle">
+        android:layout_below="@+id/mine_only_toggle"
+        android:layout_marginTop="20dp">
     </ListView>
 
     <ProgressBar xmlns:android="http://schemas.android.com/apk/res/android"

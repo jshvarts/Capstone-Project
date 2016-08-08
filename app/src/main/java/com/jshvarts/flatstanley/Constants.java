@@ -1,7 +1,5 @@
 package com.jshvarts.flatstanley;
 
-import java.util.Date;
-
 public class Constants {
     public static final String FIREBASE_URL = "https://flat-stanley.firebaseio.com";
     public static final String IMAGE_DATA_FIELD = "imageData";
