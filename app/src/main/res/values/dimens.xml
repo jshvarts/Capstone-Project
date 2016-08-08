@@ -3,4 +3,5 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="share_pic_with_others_text_size">22sp</dimen>
+    <dimen name="show_my_only_pics_text_size">22sp</dimen>
 </resources>
