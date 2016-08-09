@@ -27,4 +27,7 @@
     <string name="search_by_caption_hint">Search by caption</string>
     <string name="action_share">Share</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="appwidget_no_results">no results to display in this widget</string>
+    <string name="widget_caption_label">Caption:</string>
+    <string name="widget_timestamp_label">Created on:</string>
 </resources>

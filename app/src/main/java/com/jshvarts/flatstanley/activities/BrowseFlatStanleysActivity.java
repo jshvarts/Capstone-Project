@@ -30,6 +30,7 @@ import com.jshvarts.flatstanley.Constants;
 import com.jshvarts.flatstanley.R;
 import com.jshvarts.flatstanley.activities.adapters.MyPicsAdapter;
 import com.jshvarts.flatstanley.activities.adapters.SharedByOthersAdapter;
+import com.jshvarts.flatstanley.data.MyPicsContract;
 import com.jshvarts.flatstanley.data.remote.FlatStanleyRestApiClient;
 import com.jshvarts.flatstanley.data.remote.FlatStanleyRetrofitRestApiClient;
 import com.jshvarts.flatstanley.model.FlatStanley;
@@ -116,9 +117,7 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
     }
 
     private void displayPicsCreatedByMe() {
-        String[] projection = new String[] {BaseColumns._ID, COLUMN_PATH, COLUMN_CAPTION, COLUMN_TIMESTAMP};
-
-        Cursor c = getContentResolver().query(CONTENT_URI, projection, null, null, null);
+        Cursor c = getContentResolver().query(CONTENT_URI, MyPicsContract.getProjection(), null, null, null);
         if (c.getCount() == 0) {
             c.close();
             Log.d(TAG, "no pics created by current user yet");
