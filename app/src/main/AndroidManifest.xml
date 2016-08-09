@@ -17,37 +17,75 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!-- This meta-data tag is required to use Google Play Services. -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <provider
             android:name=".data.MyContentProvider"
             android:authorities="com.jshvarts.flatstanley.data"
             android:exported="false"/>
 
-        <activity android:name=".activities.LobbyActivity">
+        <activity android:name=".activities.LobbyActivity"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".activities.TakePicActivity"
             android:parentActivityName=".activities.LobbyActivity"
-            android:label="@string/screen_name_take_pic" />
+            android:label="@string/screen_name_take_pic"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"/>
+
         <activity android:name=".activities.ChoosePicActivity"
             android:parentActivityName=".activities.LobbyActivity"
-            android:label="@string/screen_name_choose_pic" />
+            android:label="@string/screen_name_choose_pic"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"/>
+
         <activity android:name=".activities.MakeFlatStanleyActivity"
             android:parentActivityName=".activities.LobbyActivity"
-            android:label="@string/screen_name_make_flat_stanley" />
+            android:label="@string/screen_name_make_flat_stanley"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"/>
+
         <activity android:name=".activities.ShareFlatStanleyActivity"
             android:parentActivityName=".activities.MakeFlatStanleyActivity"
-            android:label="@string/screen_name_share_flat_stanley" />
+            android:label="@string/screen_name_share_flat_stanley"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"/>
+
         <activity android:name=".activities.ShareExistingFlatStanleyActivity"
             android:parentActivityName=".activities.BrowseFlatStanleysActivity"
-            android:label="@string/screen_name_share_flat_stanley" />
+            android:label="@string/screen_name_share_flat_stanley"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"/>
+
         <activity android:name=".activities.BrowseFlatStanleysActivity"
             android:parentActivityName=".activities.LobbyActivity"
             android:label="@string/screen_name_browse_flat_stanleys"
-            android:windowSoftInputMode="stateHidden"/>
+            android:windowSoftInputMode="stateHidden"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"/>
+
+        <!-- Include the AdActivity configChanges and theme. -->
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:theme="@android:style/Theme.Translucent" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"

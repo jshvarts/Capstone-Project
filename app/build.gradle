@@ -11,6 +11,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -18,6 +19,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    dexOptions {
+        javaMaxHeapSize "4g"
+        preDexLibraries false
     }
 
     packagingOptions {
@@ -30,6 +36,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
+    compile 'com.android.support:multidex:1.0.1'
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton:butterknife:8.1.0'
@@ -38,6 +45,11 @@ dependencies {
     compile "com.squareup.retrofit:retrofit:2.0.0-beta2"
     compile "com.squareup.retrofit:converter-gson:2.0.0-beta2"
     compile "com.squareup.okhttp:logging-interceptor:2.6.0"
+    compile 'com.google.android.gms:play-services:9.0.0'
+    compile 'com.google.android.gms:play-services-ads:9.0.0'
+    compile 'com.google.android.gms:play-services-auth:9.0.0'
+    compile 'com.google.android.gms:play-services-gcm:9.0.0'
+
     apt 'com.jakewharton:butterknife-compiler:8.1.0'
 }
 
