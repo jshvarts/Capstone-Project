@@ -1,10 +1,10 @@
 package com.jshvarts.flatstanley;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
 import com.firebase.client.Firebase;
 
-public class FlatStanleyApplication extends Application {
+public class FlatStanleyApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
