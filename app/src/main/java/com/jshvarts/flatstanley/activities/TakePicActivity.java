@@ -142,6 +142,7 @@ public class TakePicActivity extends AppCompatActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
+                    dispatchTakePictureIntent();
                 } else {
                     // permission denied, boo!
                     Log.e(TAG, "Permission to use camera denied!");
