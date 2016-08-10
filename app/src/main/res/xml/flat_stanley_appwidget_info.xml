@@ -3,7 +3,7 @@
     android:minWidth="@dimen/widget_min_width"
     android:minHeight="@dimen/widget_min_height"
     android:updatePeriodMillis="86400000"
-    android:initialLayout="@layout/flat_stanley_appwidget"
+    android:initialLayout="@layout/widget_list_layout"
     android:resizeMode="vertical|horizontal"
     android:widgetCategory="home_screen">
 </appwidget-provider>

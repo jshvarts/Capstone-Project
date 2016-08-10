@@ -44,15 +44,17 @@ public class FlatStanleyAppWidgetService extends RemoteViewsService {
                 cursor.close();
                 Log.d(TAG, "cursor is not null in dataset changed");
             }
-            final long identityToken = Binder.clearCallingIdentity();
+
+            Binder.clearCallingIdentity();
+
             cursor = contentResolver.query(
                     MyPicsContract.CONTENT_URI,
-                    MyPicsContract.getProjection(),
+                    new String[]{MyPicsContract.MyPicsEntry.COLUMN_CAPTION, MyPicsContract.MyPicsEntry.COLUMN_TIMESTAMP},
                     null,
                     null,
                     null);
 
-            Log.d(TAG, "cursor is : " + cursor.toString());
+            Log.d(TAG, "cursor is: " + cursor.toString());
             Log.d(TAG, "cursor count is " + cursor.getCount());
         }
 
@@ -71,11 +73,10 @@ public class FlatStanleyAppWidgetService extends RemoteViewsService {
 
         @Override
         public RemoteViews getViewAt(int position) {
-            RemoteViews remoteViews = new RemoteViews(serviceContext.getPackageName(), R.layout.flat_stanley_appwidget_list_item);
+            RemoteViews remoteViews = new RemoteViews(serviceContext.getPackageName(), R.layout.widget_list_item);
             assert cursor != null;
 
             if (cursor.moveToPosition(position)) {
-
                 remoteViews.setTextViewText(R.id.caption, cursor.getString(FlatStanleyCursorAdapter.COLUMN_CAPTION_NAME));
                 remoteViews.setTextViewText(R.id.timestamp, cursor.getString(FlatStanleyCursorAdapter.COLUMN_TIMESTAMP_NAME));
             }

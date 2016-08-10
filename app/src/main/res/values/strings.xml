@@ -34,4 +34,5 @@
     <string name="no_data_matched">No data matched your criteria.</string>
     <string name="unable_to_open_photo">Unable to open photo.</string>
     <string name="take_pic_permission_denied">Permission to take a pic denied.</string>
+    <string name="my_widget_name">My Flat Stanleys</string>
 </resources>
