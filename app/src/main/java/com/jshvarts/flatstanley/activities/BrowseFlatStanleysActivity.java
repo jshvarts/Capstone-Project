@@ -121,7 +121,7 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
         if (c.getCount() == 0) {
             c.close();
             Log.d(TAG, "no pics created by current user yet");
-            Toast.makeText(BrowseFlatStanleysActivity.this, "No pics created by you yet.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BrowseFlatStanleysActivity.this, getText(R.string.no_pics_created_by_user), Toast.LENGTH_SHORT).show();
         } else  {
             flatStanleys = new ArrayList();
             FlatStanley flatStanley;
@@ -210,7 +210,7 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
             }
             if (flatStanleyItems == null) {
                 Log.d(TAG, "flatStanleyItems found is null");
-                Toast.makeText(BrowseFlatStanleysActivity.this, "No data matched your criteria.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BrowseFlatStanleysActivity.this, getText(R.string.no_data_matched), Toast.LENGTH_SHORT).show();
                 return;
             }
 
