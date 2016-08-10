@@ -1,25 +1,33 @@
 package com.jshvarts.flatstanley.widgets;
 
 import android.appwidget.AppWidgetManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.os.Binder;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+import com.jshvarts.flatstanley.Constants;
 import com.jshvarts.flatstanley.R;
-import com.jshvarts.flatstanley.data.MyPicsContract;
+import com.jshvarts.flatstanley.model.FlatStanley;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FlatStanleyAppWidgetService extends RemoteViewsService {
     private static final String TAG = FlatStanleyAppWidgetService.class.getSimpleName();
 
     private Context serviceContext;
-    private ContentResolver contentResolver;
+
     private int appWidgetId;
-    private Cursor cursor = null;
+
+    private List<FlatStanley> flatStanleys = new ArrayList();;
+
+    private Firebase firebase;
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
@@ -29,57 +37,58 @@ public class FlatStanleyAppWidgetService extends RemoteViewsService {
     public class FlatStanleyAppWidgetRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         public FlatStanleyAppWidgetRemoteViewsFactory(Context context, Intent intent) {
             serviceContext = context;
-            contentResolver = serviceContext.getContentResolver();
-            appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-        }
+
+            appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID);        }
 
         @Override
         public void onCreate() {
+            firebase = new Firebase(Constants.getEntrytUri());
+            // TODO change sort order to display latest first and add a limit
+            firebase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    flatStanleys = new ArrayList();
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        FlatStanley flatStanley = dataSnapshot.getValue(FlatStanley.class);
+                        flatStanley.setId(dataSnapshot.getKey());
+                        flatStanleys.add(flatStanley);
+                    }
 
+                    AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(serviceContext);
+                    appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_list);
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+                    Log.d(TAG, "The read failed: " + firebaseError.getMessage());
+                }
+            });
         }
 
         @Override
         public void onDataSetChanged() {
-            if (cursor != null) {
-                cursor.close();
-                Log.d(TAG, "cursor is not null in dataset changed");
-            }
-
-            Binder.clearCallingIdentity();
-
-            cursor = contentResolver.query(
-                    MyPicsContract.CONTENT_URI,
-                    new String[]{MyPicsContract.MyPicsEntry.COLUMN_CAPTION, MyPicsContract.MyPicsEntry.COLUMN_TIMESTAMP},
-                    null,
-                    null,
-                    null);
-
-            Log.d(TAG, "cursor is: " + cursor.toString());
-            Log.d(TAG, "cursor count is " + cursor.getCount());
+            Log.d(TAG, "onDataSetChanged called");
         }
 
         @Override
         public void onDestroy() {
-            if (cursor != null) {
-                cursor.close();
-            }
+            Log.d(TAG, "onDestroy called");
         }
 
         @Override
         public int getCount() {
-            Log.d(TAG, "getCount of cursor is : " + cursor.getCount());
-            return cursor == null ? 0 : cursor.getCount();
+            Log.d(TAG, "getCount called. " + flatStanleys.size());
+            return flatStanleys.size();
         }
 
         @Override
         public RemoteViews getViewAt(int position) {
             RemoteViews remoteViews = new RemoteViews(serviceContext.getPackageName(), R.layout.widget_list_item);
-            assert cursor != null;
+            FlatStanley flatStanley = flatStanleys.get(position);
+            remoteViews.setTextViewText(R.id.caption, flatStanley.getCaption());
+            remoteViews.setTextViewText(R.id.timestamp, flatStanley.getTimestamp());
 
-            if (cursor.moveToPosition(position)) {
-                remoteViews.setTextViewText(R.id.caption, cursor.getString(FlatStanleyCursorAdapter.COLUMN_CAPTION_NAME));
-                remoteViews.setTextViewText(R.id.timestamp, cursor.getString(FlatStanleyCursorAdapter.COLUMN_TIMESTAMP_NAME));
-            }
             return remoteViews;
         }
 
