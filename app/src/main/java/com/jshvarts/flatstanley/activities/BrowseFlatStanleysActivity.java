@@ -1,11 +1,13 @@
 package com.jshvarts.flatstanley.activities;
 
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -28,7 +30,7 @@ import com.firebase.client.ValueEventListener;
 import com.google.common.base.Preconditions;
 import com.jshvarts.flatstanley.Constants;
 import com.jshvarts.flatstanley.R;
-import com.jshvarts.flatstanley.activities.adapters.MyPicsAdapter;
+import com.jshvarts.flatstanley.activities.adapters.MyPicsCursorAdapter;
 import com.jshvarts.flatstanley.activities.adapters.SharedByOthersAdapter;
 import com.jshvarts.flatstanley.data.MyPicsContract;
 import com.jshvarts.flatstanley.data.remote.FlatStanleyRestApiClient;
@@ -46,14 +48,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import retrofit.Call;
 
-import static com.jshvarts.flatstanley.data.MyPicsContract.CONTENT_URI;
-import static com.jshvarts.flatstanley.data.MyPicsContract.MyPicsEntry.COLUMN_PATH;
-import static com.jshvarts.flatstanley.data.MyPicsContract.MyPicsEntry.COLUMN_CAPTION;
-import static com.jshvarts.flatstanley.data.MyPicsContract.MyPicsEntry.COLUMN_TIMESTAMP;
-
-public class BrowseFlatStanleysActivity extends AppCompatActivity {
+public class BrowseFlatStanleysActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = "BrowseFlatStanleys";
+    private static int MY_LOADER_ID = 0;
 
     @BindView(R.id.progress_bar)
     protected ProgressBar progressBar;
@@ -75,7 +74,7 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
 
     private SharedByOthersAdapter sharedByOthersAdapter;
 
-    private MyPicsAdapter myPicsAdapter;
+    private MyPicsCursorAdapter myPicsCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,23 +116,7 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
     }
 
     private void displayPicsCreatedByMe() {
-        Cursor c = getContentResolver().query(CONTENT_URI, MyPicsContract.getProjection(), null, null, null);
-        if (c.getCount() == 0) {
-            c.close();
-            Log.d(TAG, "no pics created by current user yet");
-            Toast.makeText(BrowseFlatStanleysActivity.this, getText(R.string.no_pics_created_by_user), Toast.LENGTH_SHORT).show();
-        } else  {
-            flatStanleys = new ArrayList();
-            FlatStanley flatStanley;
-            while(c.moveToNext()) {
-                flatStanley = new FlatStanley(c.getString(1), c.getString(2), c.getString(3));
-                flatStanley.setId(String.valueOf(c.getInt(0)));
-                flatStanleys.add(flatStanley);
-            }
-            c.close();
-
-            changeMyFlatStanleyPicsAdapterData(flatStanleys);
-        }
+        getLoaderManager().restartLoader(MY_LOADER_ID, null, this);
     }
 
     private void displayPicsCreatedByOthers() {
@@ -169,6 +152,33 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
         }
         searchAsyncTask = new SearchAsyncTask(new FlatStanleyRetrofitRestApiClient());
         searchAsyncTask.execute(searchByCaptionEditText.getText().toString());
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "onCreateLoader entered");
+
+        return new CursorLoader(this, MyPicsContract.CONTENT_URI, MyPicsContract.getProjection(), null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.d(TAG, "onLoadFinished entered");
+
+        if (cursor.getCount() == 0) {
+            Log.d(TAG, "no pics created by current user yet");
+            Toast.makeText(BrowseFlatStanleysActivity.this, getText(R.string.no_pics_created_by_user), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        changeMyFlatStanleyPicsAdapterData(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        Log.d(TAG, "onLoaderReset entered");
+        loader = null;
+        myPicsCursorAdapter.swapCursor(null);
     }
 
     private class SearchAsyncTask extends AsyncTask<String, Void, FlatStanleyItems> {
@@ -248,11 +258,10 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
 
     private void changeSharedByOthersFlatStanleyAdapterData(List<FlatStanley> flatStanleys) {
         sharedByOthersAdapter = new SharedByOthersAdapter(BrowseFlatStanleysActivity.this, flatStanleys);
-        ListView listViewItems = (ListView) findViewById(R.id.listView);
-        listViewItems.setAdapter(sharedByOthersAdapter);
+        listView.setAdapter(sharedByOthersAdapter);
         sharedByOthersAdapter.notifyDataSetChanged();
 
-        listViewItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 startShareActivity(id, false);
@@ -260,13 +269,12 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity {
         });
     }
 
-    private void changeMyFlatStanleyPicsAdapterData(List<FlatStanley> flatStanleys) {
-        myPicsAdapter = new MyPicsAdapter(BrowseFlatStanleysActivity.this, flatStanleys);
-        ListView listViewItems = (ListView) findViewById(R.id.listView);
-        listViewItems.setAdapter(myPicsAdapter);
-        myPicsAdapter.notifyDataSetChanged();
+    private void changeMyFlatStanleyPicsAdapterData(Cursor cursor) {
+        myPicsCursorAdapter = new MyPicsCursorAdapter(BrowseFlatStanleysActivity.this, cursor);
+        listView.setAdapter(myPicsCursorAdapter);
+        myPicsCursorAdapter.notifyDataSetChanged();
 
-        listViewItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 startShareActivity(id, true);
