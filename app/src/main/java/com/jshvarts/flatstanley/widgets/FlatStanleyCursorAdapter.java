@@ -30,7 +30,7 @@ public class FlatStanleyCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View mItem = LayoutInflater.from(context).inflate(R.layout.flat_stanley_appwidget_list_item, parent, false);
+        View mItem = LayoutInflater.from(context).inflate(R.layout.widget_list_item, parent, false);
         ViewHolder mHolder = new ViewHolder(mItem);
         mItem.setTag(mHolder);
         return mItem;

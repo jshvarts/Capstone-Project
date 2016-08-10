@@ -98,7 +98,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <receiver android:name=".widgets.FlatStanleyWidgetProvider" >
+        <receiver android:name=".widgets.FlatStanleyWidgetProvider" android:label="@string/my_widget_name" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.appwidget.action.ACTION_DATA_UPDATED" />
