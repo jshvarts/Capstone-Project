@@ -3,6 +3,7 @@ package com.jshvarts.flatstanley.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.widget.Button;
 
 import com.google.android.gms.ads.AdRequest;
@@ -24,6 +25,9 @@ public class LobbyActivity extends AppCompatActivity {
     @BindView(R.id.adView)
     protected AdView adView;
 
+    @BindView(R.id.toolbar)
+    protected Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +35,8 @@ public class LobbyActivity extends AppCompatActivity {
         setContentView(R.layout.lobby);
 
         ButterKnife.bind(this);
+
+        setSupportActionBar(toolbar);
 
         // Create an ad request. Check logcat output for the hashed device ID to
         // get test ads on a physical device. e.g.
