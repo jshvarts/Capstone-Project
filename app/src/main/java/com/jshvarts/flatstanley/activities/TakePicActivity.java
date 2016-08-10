@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.jshvarts.flatstanley.R;
 import com.jshvarts.flatstanley.util.CameraUtil;
@@ -127,9 +128,14 @@ public class TakePicActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            optimizePic();
-            displayPic();
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
+            if (resultCode == RESULT_OK) {
+                optimizePic();
+                displayPic();
+            } else if (requestCode == RESULT_CANCELED) {
+                Log.d(TAG, "Permission to take a pic denied");
+                Toast.makeText(TakePicActivity.this, getText(R.string.take_pic_permission_denied), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

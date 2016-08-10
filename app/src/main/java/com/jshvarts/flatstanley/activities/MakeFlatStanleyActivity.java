@@ -307,7 +307,7 @@ public class MakeFlatStanleyActivity extends AppCompatActivity {
             is = getContentResolver().openInputStream(photoUri);
         } catch (IOException e) {
             Log.d(TAG, "Unable to open photo for uri " + photoUri);
-            Toast.makeText(MakeFlatStanleyActivity.this, "Unable to open photo.", Toast.LENGTH_LONG).show();
+            Toast.makeText(MakeFlatStanleyActivity.this, getText(R.string.unable_to_open_photo), Toast.LENGTH_LONG).show();
             return null;
         }
         return is;
