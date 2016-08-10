@@ -28,6 +28,7 @@
             android:exported="false"/>
 
         <activity android:name=".activities.LobbyActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait">
@@ -97,7 +98,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <receiver android:name=".widgets.TodaysScoresAppWidgetProvider" >
+        <receiver android:name=".widgets.FlatStanleyWidgetProvider" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.appwidget.action.ACTION_DATA_UPDATED" />
@@ -107,7 +108,7 @@
         </receiver>
 
         <service
-            android:name=".widgets.TodaysScoresAppWidgetService"
+            android:name=".widgets.FlatStanleyAppWidgetService"
             android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 
