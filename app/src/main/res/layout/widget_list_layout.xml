@@ -23,6 +23,6 @@
         android:text="@string/appwidget_no_results"
         android:gravity="center"
         android:textColor="@android:color/white"
-        android:textSize="@dimen/widget_textsize" />
+        android:textSize="@dimen/widget_caption_textsize" />
 
 </FrameLayout>

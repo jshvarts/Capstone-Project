@@ -4,7 +4,8 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="share_pic_with_others_text_size">22sp</dimen>
     <dimen name="show_my_only_pics_text_size">22sp</dimen>
-    <dimen name="widget_textsize">16sp</dimen>
+    <dimen name="widget_caption_textsize">16sp</dimen>
+    <dimen name="widget_timestamp_textsize">12sp</dimen>
     <dimen name="widget_min_width">300dp</dimen>
-    <dimen name="widget_min_height">150dp</dimen>
+    <dimen name="widget_min_height">300dp</dimen>
 </resources>
