@@ -1,7 +1,10 @@
 package com.jshvarts.flatstanley.activities;
 
+import android.app.LoaderManager;
 import android.content.ContentUris;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -33,9 +37,11 @@ import butterknife.ButterKnife;
 
 import static com.jshvarts.flatstanley.data.MyPicsContract.MyPicsEntry.COLUMN_PATH;
 
-public class ShareExistingFlatStanleyActivity extends AppCompatActivity {
+public class ShareExistingFlatStanleyActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = "ShareExistingFlatStan";
+    private static int MY_LOADER_ID = 1;
 
     public static final String IS_PIC_LOCAL_EXTRA = "isLocal";
     public static final String ITEM_ID_EXTRA = "itemId";
@@ -58,18 +64,21 @@ public class ShareExistingFlatStanleyActivity extends AppCompatActivity {
         setContentView(R.layout.share_existing_flat_stanley);
 
         ButterKnife.bind(this);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("JS", "onResume()");
         itemId = getIntent().getLongExtra(ITEM_ID_EXTRA, 0);
         if (itemId > 0) {
             Log.d(TAG, "itemId: " + itemId);
-
             displayPic();
-
         } else {
             Log.e(TAG, "itemId is invalid");
+            Toast.makeText(ShareExistingFlatStanleyActivity.this, getText(R.string.unable_to_open_photo), Toast.LENGTH_SHORT).show();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -114,30 +123,7 @@ public class ShareExistingFlatStanleyActivity extends AppCompatActivity {
     }
 
     private void displayLocalPic() {
-
-        String[] projection = new String[] {COLUMN_PATH};
-
-        Cursor c = getContentResolver().query(ContentUris.withAppendedId(MyPicsContract.CONTENT_URI, itemId), projection, null, null, null);
-        if (c.getCount() == 0) {
-            c.close();
-            Log.d(TAG, "unable to load pic");
-        } else {
-            String path = null;
-            while (c.moveToNext()) {
-                path = c.getString(0);
-            }
-            c.close();
-
-            photoUri = Uri.parse(path);
-            InputStream inputStream;
-            try {
-                inputStream = getContentResolver().openInputStream(photoUri);
-                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                postcardImageView.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                Log.e(TAG, "Unable to open photo for uri " + photoUri);
-            }
-        }
+        getLoaderManager().restartLoader(MY_LOADER_ID, null, this);
     }
 
     private void displayRemotePic() {
@@ -161,5 +147,48 @@ public class ShareExistingFlatStanleyActivity extends AppCompatActivity {
                 Log.d(TAG, "The read failed: " + firebaseError.getMessage());
             }
         });
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "onCreateLoader entered");
+
+        Uri itemUri = ContentUris.withAppendedId(MyPicsContract.CONTENT_URI, itemId);
+
+        String[] projection = new String[] {COLUMN_PATH};
+
+        return new CursorLoader(this, itemUri, projection, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.d(TAG, "onLoadFinished entered");
+
+        if (cursor.getCount() == 0) {
+            Log.d(TAG, "error loading existing pic");
+            Toast.makeText(ShareExistingFlatStanleyActivity.this, getText(R.string.unable_to_open_photo), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String path = null;
+        if (cursor.moveToFirst()) {
+            path = cursor.getString(cursor.getColumnIndex(COLUMN_PATH));
+        }
+
+        photoUri = Uri.parse(path);
+        InputStream inputStream;
+        try {
+            inputStream = getContentResolver().openInputStream(photoUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            postcardImageView.setImageBitmap(bitmap);
+        } catch (IOException e) {
+            Log.e(TAG, "Unable to open photo for uri " + photoUri);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        Log.d(TAG, "onLoaderReset entered");
+        loader = null;
     }
 }

@@ -71,7 +71,6 @@
             android:parentActivityName=".activities.BrowseFlatStanleysActivity"
             android:label="@string/screen_name_share_flat_stanley"
             android:configChanges="orientation|screenSize"
-            android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"/>
 
         <activity android:name=".activities.BrowseFlatStanleysActivity"

@@ -41,25 +41,24 @@ public class MyContentProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         String id = null;
 
-        if (uriMatcher.match(uri) == MY_PIC_ID) {
-            //this query is for a single pic. Get the id from the URI.
+        if (!isCollectionUri(uri)) {
             id = uri.getPathSegments().get(1);
         }
 
-        return db.getPics(id, projection, selection, selectionArgs, sortOrder);
+        Cursor cursor = db.getPics(id, projection, selection, selectionArgs, sortOrder);
+
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+
+        return cursor;
     }
 
     @Nullable
     @Override
     public String getType(Uri uri) {
-        switch (uriMatcher.match(uri)) {
-            case MY_PICS:
-                return "vnd.android.cursor.dir/vnd.com.jshvarts.flatstanley.provider.mypics";
-            case MY_PIC_ID:
-                return "vnd.android.cursor.item/vnd.com.jshvarts.flatstanley.provider.mypics";
-            default:
-                return null;
+        if (isCollectionUri(uri)) {
+            return "vnd.android.cursor.dir/vnd.com.jshvarts.flatstanley.provider.mypics";
         }
+        return "vnd.android.cursor.item/vnd.com.jshvarts.flatstanley.provider.mypics";
     }
 
     @Nullable
@@ -78,8 +77,7 @@ public class MyContentProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         String id = null;
-        if(uriMatcher.match(uri) == MY_PIC_ID) {
-            //delete is for a single pic. Get the id from the URI.
+        if (!isCollectionUri(uri)) {
             id = uri.getPathSegments().get(1);
         }
 
@@ -93,8 +91,7 @@ public class MyContentProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         String id = null;
-        if(uriMatcher.match(uri) == MY_PIC_ID) {
-            //update is for a single pic. Get the id from the URI.
+        if (!isCollectionUri(uri)) {
             id = uri.getPathSegments().get(1);
         }
 
@@ -103,5 +100,9 @@ public class MyContentProvider extends ContentProvider {
             Log.e(LOG_TAG, "Failed to update a pic " + uri);
         }
         return count;
+    }
+
+    private boolean isCollectionUri(Uri uri) {
+        return(uriMatcher.match(uri) == MY_PICS);
     }
 }
