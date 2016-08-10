@@ -48,6 +48,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import retrofit.Call;
 
+/**
+ * Note, we do not need to do anything special with a CursorAdapter for row recycling since we are
+ * overriding newView() and bindView()
+ */
 public class BrowseFlatStanleysActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -177,8 +181,9 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader loader) {
         Log.d(TAG, "onLoaderReset entered");
-        loader = null;
-        myPicsCursorAdapter.swapCursor(null);
+        if (myPicsCursorAdapter != null) {
+            myPicsCursorAdapter.swapCursor(null);
+        }
     }
 
     private class SearchAsyncTask extends AsyncTask<String, Void, FlatStanleyItems> {
@@ -270,9 +275,13 @@ public class BrowseFlatStanleysActivity extends AppCompatActivity
     }
 
     private void changeMyFlatStanleyPicsAdapterData(Cursor cursor) {
-        myPicsCursorAdapter = new MyPicsCursorAdapter(BrowseFlatStanleysActivity.this, cursor);
+        if (myPicsCursorAdapter != null) {
+            myPicsCursorAdapter.swapCursor(cursor);
+            return;
+        }
+
+        myPicsCursorAdapter = new MyPicsCursorAdapter(BrowseFlatStanleysActivity.this, cursor, false);
         listView.setAdapter(myPicsCursorAdapter);
-        myPicsCursorAdapter.notifyDataSetChanged();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
